@@ -1,3 +1,3 @@
 # UI
 
-Meny och inmatning. Gränssnittet pratar med repositoryt, inte med databasen direkt.
+Meny och inmatning, färdigt. Gränssnittet pratar med interface i `Services/`, aldrig med databasen direkt. Ändra bara här där en kommentar säger `Du behöver bygga ut detta mer`.
