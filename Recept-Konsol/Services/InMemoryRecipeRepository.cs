@@ -48,6 +48,8 @@ public class InMemoryRecipeRepository : IRecipeRepository
 
     // Exempeldata, så att det finns något att titta på direkt.
     // Er riktiga databas ska seeda sig själv på samma sätt vid första start, om den är tom.
+    // Här passar till exempel mönstret Builder: ett recept med många ingredienser blir
+    // lättare att läsa om det byggs steg för steg, till exempel .WithIngredient("mjölk", 6, "dl").
     private void Seed()
     {
         AddChef(new Chef { FirstName = "Kim", LastName = "Exempelsson" });

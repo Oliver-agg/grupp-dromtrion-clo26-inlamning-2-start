@@ -21,6 +21,8 @@ string? connectionString = config["DB_CONNECTION"];
 // Byt den här raden när ni har en riktig databas, till exempel:
 //   IRecipeRepository repository = new MongoRecipeRepository(connectionString);
 // Er databasklass ska skapa databasen och seeda exempeldata vid första start, om den är tom.
+// Här passar till exempel mönstret Factory: en klass som väljer och skapar rätt repository
+// utifrån konfigurationen, så att Program.cs inte behöver känna till varje databasklass.
 IRecipeRepository repository = new InMemoryRecipeRepository();
 
 // De här tre ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".

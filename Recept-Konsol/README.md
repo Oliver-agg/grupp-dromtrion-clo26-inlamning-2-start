@@ -62,8 +62,9 @@ Programmet går att köra direkt, utan databas. Menyerna i `UI/` är färdiga oc
 ### Vad fungerar redan?
 
 - **Menyval 1–7** (recept och kockar) fungerar mot `InMemoryRecipeRepository`. Den är en låtsasdatabas: data ligger i listor och försvinner när programmet stängs.
-- **Menyval 8–10** (portioner, kategorier, veckoplan) anropar `RecipeCalculator`, `CategoryService` och `MealPlanService`. De kastar `NotImplementedException`, och menyn visar då *"Inte implementerat ännu"*.
-- **Mängder** visas som `2,50 dl`. Det är fel enligt önskemål 1, och ska rättas i `RecipeCalculator.FormatAmount`.
+- **Kategorier, veckoplan och inköpslista** visar demodata från `CategoryService` och `MealPlanService`: hårdkodade listor som inte sparas. Allt som ändrar något (lägga till eller ta bort kategori, sätta gräns, planera måltid) kastar `NotImplementedException`, och då visas *"Inte implementerat ännu"*.
+- **Demodatan visar hur sidorna ska se ut** när ni är klara, men den är hårdkodad. Ersätt allt som är märkt `DEMO` med riktig logik.
+- **Två saker är fel med flit:** omräkning av portioner returnerar originalmängderna, och mängder visas som `2,50 dl` i stället för `2,5 dl` (önskemål 1). Båda rättas i `RecipeCalculator`.
 
 Sök efter `Du behöver bygga ut detta mer` i koden för att hitta alla ställen ni ska bygga vidare på.
 

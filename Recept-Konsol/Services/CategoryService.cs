@@ -3,14 +3,22 @@ using Recept.Models;
 namespace Recept.Services;
 
 /// <summary>
-/// Ska byggas av er. Menyn anropar redan de här metoderna och visar
-/// "Inte implementerat ännu" så länge de kastar NotImplementedException.
+/// Ska byggas av er. GetAll visar demodata så att sidan går att titta på.
+/// Övriga metoder kastar NotImplementedException, och menyn visar då "Inte implementerat ännu".
 /// </summary>
 public class CategoryService : ICategoryService
 {
-    // Du behöver bygga ut detta mer: standardlistan är
-    // Frukost, Lunch, Middag, Efterrätt, Bakning och Övrigt.
-    public List<Category> GetAll() => throw new NotImplementedException();
+    // DEMO: en fast lista som inte sparas någonstans. Ersätt med kategorier från databasen.
+    // Standardlistan ska alltid finnas: Frukost, Lunch, Middag, Efterrätt, Bakning och Övrigt.
+    public List<Category> GetAll() =>
+    [
+        new Category { Id = 1, Name = "Frukost" },
+        new Category { Id = 2, Name = "Lunch" },
+        new Category { Id = 3, Name = "Middag" },
+        new Category { Id = 4, Name = "Efterrätt" },
+        new Category { Id = 5, Name = "Bakning" },
+        new Category { Id = 6, Name = "Övrigt" },
+    ];
 
     // Tom kategori ska ge ett tydligt felmeddelande. Kasta ArgumentException, så visar menyn texten.
     public void Add(string name) => throw new NotImplementedException();
