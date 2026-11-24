@@ -18,6 +18,7 @@ var config = new ConfigurationBuilder()
 
 string? connectionString = config["DB_CONNECTION"];
 
+
 // Byt den här raden när ni har en riktig databas, till exempel:
 //   IRecipeRepository repository = new MongoRecipeRepository(connectionString);
 // Er databasklass ska skapa databasen och seeda exempeldata vid första start, om den är tom.
