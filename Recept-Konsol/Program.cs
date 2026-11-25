@@ -29,7 +29,7 @@ IRecipeRepository repository = RepositoryFactory.Create();
 DatabaseSeeder.SeedIfEmpty(repository, new InMemoryRecipeRepository());
 
 // De här tre ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".
-ICategoryService categories = new CategoryService();
+ICategoryService categories = RepositoryFactory.CreateCategoryService();
 IMealPlanService mealPlan = new MealPlanService();
 IRecipeCalculator calculator = new RecipeCalculator();
 

@@ -1,5 +1,6 @@
 using Recept.Models;
 using Recept.Services;
+using SharpCompress.Compressors.ZStandard.Unsafe;
 
 namespace Recept.UI;
 
@@ -29,8 +30,8 @@ public class CategoryMenu
     {
         foreach (Category category in _categories.GetAll())
         {
-            // Du behöver bygga ut detta mer: visa gränsen per vecka när Category har det fältet.
-            Console.WriteLine($"{category.Id}. {category.Name}");
+            string limit = category.MaxPerWeek is int max ? $"(högst {max} per vecka)" : "";
+            Console.WriteLine($"{category.Id}. {category.Name}{limit}");
         }
     }
 
@@ -66,4 +67,5 @@ public class CategoryMenu
         _categories.SetWeeklyLimit(id, max);
         Console.WriteLine("Gränsen är sparad.");
     }
+
 }

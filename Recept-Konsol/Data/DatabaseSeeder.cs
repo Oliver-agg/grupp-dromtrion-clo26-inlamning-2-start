@@ -1,4 +1,5 @@
 ﻿using Recept.Services;
+using Recept.Models;
 
 namespace Recept.Data;
 
@@ -20,6 +21,19 @@ public static class DatabaseSeeder
             {
                 target.AddRecipe(recipe);
             }
+        }
+    }
+
+    public static void SeedCategoriesIfEmpty(ICategoryRepository repository)
+    {
+        if (repository.GetAll().Count > 0)
+        {
+            return;
+        }
+
+        foreach(string name in new[] { "Frukost", "Lunch", "Middag", "Efterrätt", "Bakning", "Övrigt"})
+        {
+            repository.Add(new Category { Name = name });
         }
     }
 }
