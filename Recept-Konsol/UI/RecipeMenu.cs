@@ -1,3 +1,4 @@
+using Recept.Data;
 using Recept.Models;
 using Recept.Services;
 
@@ -41,8 +42,26 @@ public class RecipeMenu
             Servings = ConsoleInput.ReadInt("Antal portioner", min: 1, max: 100),
         };
 
-        // Du behöver bygga ut detta mer: fråga efter kategori, kock och anteckning
-        // när modellen Recipe har de fälten.
+
+        Console.WriteLine();
+        Console.WriteLine("Välj kategori: ");
+
+        var categories = new CategoryService(
+            new MongoCategoryRepository(
+                ConnectionStringProvider.GetConnectionString()));
+
+
+        foreach (var category in categories.GetAll())
+        {
+            Console.WriteLine($"{category.Id}. {category.Name}");
+        }
+
+        recipe.CategoryId = ConsoleInput.ReadInt(
+            "Kategorins nummer",
+            min: 1);
+
+        recipe.Note = ConsoleInput.ReadText(
+            "Anteckning (valfri)");
 
         Console.WriteLine("Ingredienser. Lämna namnet tomt när du är klar.");
         while (true)
@@ -172,6 +191,13 @@ public class RecipeMenu
             Console.WriteLine($"  {_calculator.FormatAmount(ingredient.Amount, ingredient.Unit)} {ingredient.Name}");
         }
 
-        // Du behöver bygga ut detta mer: visa kategori, kock och anteckning.
+        Console.WriteLine();
+        Console.WriteLine($"Kategori: {recipe.CategoryId}");
+
+        if (!string.IsNullOrWhiteSpace(recipe.Note))
+        {
+            Console.WriteLine($"Anteckning: {recipe.Note}");
+        }
+
     }
 }
