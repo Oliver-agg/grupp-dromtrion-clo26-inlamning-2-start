@@ -37,6 +37,14 @@ public class InMemoryRecipeRepository : IRecipeRepository
             .Where(r => r.Ingredients.Any(i => i.Name.Contains(ingredientName, StringComparison.OrdinalIgnoreCase)))
             .ToList();
 
+    public void MoveRecipesToCategory(int fromCategoryId, int toCategoryId)
+    {
+        foreach (Recipe recipe in _recipes.Where(r => r.CategoryId == fromCategoryId))
+        {
+            recipe.CategoryId = toCategoryId;
+        }
+    }
+
     public List<Chef> GetAllChefs() => _chefs.ToList();
 
     public void AddChef(Chef chef)

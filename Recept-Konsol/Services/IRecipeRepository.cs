@@ -14,6 +14,9 @@ public interface IRecipeRepository
     void DeleteRecipe(int id);
     List<Recipe> SearchByIngredient(string ingredientName);
 
+    /// <summary>Flyttar alla recept i en kategori till en annan, till exempel till "Övrigt" (önskemål 3).</summary>
+    void MoveRecipesToCategory(int fromCategoryId, int toCategoryId);
+
     List<Chef> GetAllChefs();
     void AddChef(Chef chef);
 
