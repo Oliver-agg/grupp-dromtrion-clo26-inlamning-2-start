@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Recept.Services;
 using Recept.UI;
+using Recept.Data;
 
 // Svenska tecken och svenskt talformat (2,5 i stället för 2.5).
 Console.OutputEncoding = Encoding.UTF8;
@@ -24,7 +25,8 @@ string? connectionString = config["DB_CONNECTION"];
 // Er databasklass ska skapa databasen och seeda exempeldata vid första start, om den är tom.
 // Här passar till exempel mönstret Factory: en klass som väljer och skapar rätt repository
 // utifrån konfigurationen, så att Program.cs inte behöver känna till varje databasklass.
-IRecipeRepository repository = new InMemoryRecipeRepository();
+IRecipeRepository repository = RepositoryFactory.Create();
+DatabaseSeeder.SeedIfEmpty(repository, new InMemoryRecipeRepository());
 
 // De här tre ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".
 ICategoryService categories = new CategoryService();
