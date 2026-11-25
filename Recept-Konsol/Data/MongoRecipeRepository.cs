@@ -12,26 +12,17 @@ namespace Recept.Data;
 /// </summary>
 public class MongoRecipeRepository : IRecipeRepository
 {
-    private const string DatabaseName = "recept";
     private const int MaxChefs = 5;
 
+    private readonly MongoContext _context;
     private readonly IMongoCollection<Recipe> _recipes;
     private readonly IMongoCollection<Chef> _chefs;
-    private readonly IMongoCollection<BsonDocument> _counters;
 
-    public MongoRecipeRepository(string connectionString)
+    public MongoRecipeRepository(MongoContext context)
     {
-        MongoClientSettings settings = MongoClientSettings.FromConnectionString(connectionString);
-        settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
-
-        var client = new MongoClient(settings);
-        IMongoDatabase database = client.GetDatabase(DatabaseName);
-
-        EnsureConnection(database);
-
-        _recipes = database.GetCollection<Recipe>("recipes");
-        _chefs = database.GetCollection<Chef>("chefs");
-        _counters = database.GetCollection<BsonDocument>("counters");
+        _context = context;
+        _recipes = context.GetCollection<Recipe>("recipes");
+        _chefs = context.GetCollection<Chef>("chefs");
     }
 
     public List<Recipe> GetAllRecipes() =>
@@ -42,7 +33,7 @@ public class MongoRecipeRepository : IRecipeRepository
 
     public void AddRecipe(Recipe recipe)
     {
-        recipe.Id = GetNextId("recipes");
+        recipe.Id = _context.GetNextId("recipes");
         _recipes.InsertOne(recipe);
     }
 
@@ -59,6 +50,12 @@ public class MongoRecipeRepository : IRecipeRepository
         return _recipes.Find(filter).SortBy(r => r.Id).ToList();
     }
 
+    // Flyttar alla recept från en kategori till en annan i ett enda steg (önskemål 3).
+    public void MoveRecipesToCategory(int fromCategoryId, int toCategoryId) =>
+        _recipes.UpdateMany(
+            r => r.CategoryId == fromCategoryId,
+            Builders<Recipe>.Update.Set(r => r.CategoryId, toCategoryId));
+
     public List<Chef> GetAllChefs() =>
         _chefs.Find(FilterDefinition<Chef>.Empty).SortBy(c => c.Id).ToList();
 
@@ -70,39 +67,7 @@ public class MongoRecipeRepository : IRecipeRepository
             throw new ArgumentException($"Programmet klarar högst {MaxChefs} kockar.");
         }
 
-        chef.Id = GetNextId("chefs");
+        chef.Id = _context.GetNextId("chefs");
         _chefs.InsertOne(chef);
-    }
-
-    // Räknar upp ett nummer i databasen och lämnar ut det nya värdet,
-    // så att varje recept och kock får ett eget heltal: 1, 2, 3 ...
-    private int GetNextId(string counterName)
-    {
-        FilterDefinition<BsonDocument> filter = Builders<BsonDocument>.Filter.Eq("_id", counterName);
-        UpdateDefinition<BsonDocument> update = Builders<BsonDocument>.Update.Inc("value", 1);
-        var options = new FindOneAndUpdateOptions<BsonDocument>
-        {
-            IsUpsert = true,
-            ReturnDocument = ReturnDocument.After,
-        };
-
-        BsonDocument counter = _counters.FindOneAndUpdate(filter, update, options);
-        return counter["value"].AsInt32;
-    }
-
-    // Kontrollerar direkt vid start att databasen svarar,
-    // så att användaren får ett tydligt meddelande i stället för en krasch senare.
-    private static void EnsureConnection(IMongoDatabase database)
-    {
-        try
-        {
-            database.RunCommand<BsonDocument>(new BsonDocument("ping", 1));
-        }
-        catch (Exception ex) when (ex is TimeoutException or MongoException)
-        {
-            throw new InvalidOperationException(
-                "Kunde inte ansluta till databasen. Kontrollera internetanslutningen, " +
-                "att din IP-adress finns i Atlas och att DB_CONNECTION är rätt.", ex);
-        }
     }
 }

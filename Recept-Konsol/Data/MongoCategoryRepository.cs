@@ -4,27 +4,35 @@ using Recept.Services;
 
 namespace Recept.Data;
 
+/// <summary>
+/// Sparar kategorier i MongoDB. Bara lagring: reglerna ligger i CategoryService.
+/// </summary>
 public class MongoCategoryRepository : ICategoryRepository
 {
+    private readonly MongoContext _context;
     private readonly IMongoCollection<Category> _categories;
-    public MongoCategoryRepository(string connectionString)
+
+    public MongoCategoryRepository(MongoContext context)
     {
-        var client = new MongoClient(connectionString);
-        _categories = client.GetDatabase("recept").GetCollection<Category>("categories");
+        _context = context;
+        _categories = context.GetCollection<Category>("categories");
     }
 
-    public List<Category> GetAll() => _categories.Find(FilterDefinition<Category>.Empty).SortBy(c => c.Id).ToList();
+    public List<Category> GetAll() =>
+        _categories.Find(FilterDefinition<Category>.Empty).SortBy(c => c.Id).ToList();
 
-    public Category? Get(int id) => _categories.Find(c => c.Id == id).FirstOrDefault();
+    public Category? Get(int id) =>
+        _categories.Find(c => c.Id == id).FirstOrDefault();
 
     public void Add(Category category)
     {
-        Category? last = _categories.Find(FilterDefinition<Category>.Empty).SortByDescending(c => c.Id).Limit(1).FirstOrDefault();
-        category.Id = (last?.Id ?? 0) + 1;
+        category.Id = _context.GetNextId("categories");
         _categories.InsertOne(category);
     }
 
-    public void Update(Category category) => _categories.ReplaceOne(c => c.Id == category.Id, category);
+    public void Update(Category category) =>
+        _categories.ReplaceOne(c => c.Id == category.Id, category);
 
-    public void Delete(int id) => _categories.DeleteOne(c => c.Id == id);
+    public void Delete(int id) =>
+        _categories.DeleteOne(c => c.Id == id);
 }

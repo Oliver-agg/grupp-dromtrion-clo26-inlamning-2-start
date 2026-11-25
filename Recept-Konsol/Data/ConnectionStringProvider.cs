@@ -22,7 +22,7 @@ public static class ConnectionStringProvider
         {
             throw new InvalidOperationException(
                 "Hittar ingen connectionstring. Kör: " +
-                "dotnet user-secrets set 'DB_CONNECTION'  '<din connectionstring>' --project Recept-Konsol");
+                "dotnet user-secrets set 'DB_CONNECTION' '<din connectionstring>' --project Recept-Konsol");
         }
 
         return connectionString;
