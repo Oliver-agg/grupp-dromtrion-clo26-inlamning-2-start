@@ -8,7 +8,8 @@ Här står allt vi har kommit överens om, så att vi inte krockar eller bygger 
 - Ändrar du en fil som någon annan äger: säg till i Discord först.
 
 **När du jobbar med AI:** be den läsa repot direkt i stället för att klistra in kod, till exempel:
-*"Läs https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/BESLUT.md och filerna under min uppgift. Fungerar inte detta klistra in all raw länkar som kan agera likadant som ovanstående."*
+*"Läs https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/BESLUT.md och filerna under min uppgift."*
+Fungerar inte det, klistra in länkarna under ditt namn längst ner i den här filen.
 
 ---
 
@@ -25,15 +26,18 @@ Här står allt vi har kommit överens om, så att vi inte krockar eller bygger 
 
 ## Vem äger vilka filer
 
-| `Models/Recipe.cs`, `Chef.cs`, `Ingredient.cs`, `PlannedMeal.cs` | Filippa |
+| Fil eller mapp | Ägare |
+|---|---|
+| `Models/Recipe.cs`, `Chef.cs`, `Ingredient.cs` | Filippa |
 | `Models/Category.cs` | Daniella |
-| `Models/CategoryWarning.cs`, `ShoppingListItem.cs` | Oliver |
+| `Models/PlannedMeal.cs`, `CategoryWarning.cs`, `ShoppingListItem.cs` | Oliver |
 | `Data/MongoContext.cs`, `MongoRecipeRepository.cs`, `MongoMealPlanRepository.cs` | Oliver |
 | `Data/MongoCategoryRepository.cs`, `DatabaseSeeder.cs`, `ConnectionStringProvider.cs` | Daniella |
 | `Services/IRecipeRepository.cs`, `IMealPlanRepository.cs`, `InMemoryRecipeRepository.cs` | Oliver |
+| `Services/MealPlanService.cs` | Oliver (Daniella kopplar in varningarna, se beslut 9) |
 | `Services/ICategoryRepository.cs`, `CategoryService.cs`, `RepositoryFactory.cs` | Daniella |
+| `Services/CategoryLimitChecker.cs` (ny) | Daniella |
 | `Services/RecipeCalculator.cs`, `RecipeBuilder.cs` (ny) | Filippa |
-| `Services/MealPlanService.cs` | Delas – se beslut 9 |
 | `UI/RecipeMenu.cs` | Filippa |
 | `UI/CategoryMenu.cs` | Daniella |
 | `UI/MealPlanMenu.cs`, `Menu.cs`, `ConsoleInput.cs` | Färdiga från läraren, rör bara om det behövs |
@@ -75,26 +79,33 @@ Inga databasklasser i `UI/`. `RecipeMenu` får kategorierna via konstruktorn (`I
 
 ### 9. Veckoplan, varningar och inköpslista
 - **Lagring:** `IMealPlanRepository` och `MongoMealPlanRepository` (finns nu). Där sparas planerade måltider och varningar som redan visats.
-- **Veckan** börjar på måndag och slutar på söndag. Vi använder `ISOWeek`, som redan finns i `MealPlanService`.
+- **Veckan** börjar på måndag och slutar på söndag. Vi använder `ISOWeek`.
 - **Gränsen** gäller alla veckor och kontrolleras per vecka. Varning vid 80 % och ett annat meddelande vid 100 %.
 - **Visade varningar sparas i databasen** (`CategoryWarning`), så att de inte visas igen samma vecka, inte ens efter omstart (önskemål 4).
 - **Inköpslistan** räknas fram från veckoplanen varje gång och sparas inte. Samma ingrediensnamn (stora och små bokstäver räknas som samma) med samma enhet summeras.
-- **Ordning i `MealPlanService.cs`**, eftersom tre personer arbetar där:
-  1. **Filippa:** konstruktorn som tar emot repositories, raden i `Program.cs`, `GetWeekPlan`, och den del av `PlanMeal` som sparar måltiden och kontrollerar att receptet finns. Pushar.
-  2. **Daniella:** varningarna, i en egen klass (till exempel `CategoryLimitChecker`) som `PlanMeal` anropar. Observer är ett valfritt mönster här. Pushar.
-  3. **Oliver:** `GetShoppingList`. Pushar.
+- **Ordning i `MealPlanService.cs`**, eftersom två personer arbetar där:
+  1. **Oliver:** konstruktorn som tar emot repositories, raden i `Program.cs`, `GetWeekPlan`, och den del av `PlanMeal` som sparar måltiden och kontrollerar att receptet finns. Pushar och säger till Daniella. Bygger sedan `GetShoppingList`.
+  2. **Daniella:** varningarna i en egen klass, `CategoryLimitChecker`, som `PlanMeal` anropar. Observer är ett valfritt mönster här. Säger till Oliver innan hon ändrar i `MealPlanService.cs`.
 
 ### 10. Mängder och enheter
 **Förslag:** mängden måste vara större än 0. Enheten väljs från en fast lista: `dl, l, msk, tsk, krm, g, kg, st`, så att inköpslistan kan summera rätt. Kontrollen görs på ett ställe, i `RecipeBuilder`. (Filippa)
 
 ### 11. Builder
-`RecipeBuilder` används både för exempelrecepten och när användaren lägger till ett recept. Exempelrecepten får då en riktig kategori och kock (i dag hamnar de på kategori 0, som inte finns). När det fungerar tas `InMemoryRecipeRepository` bort. (Filippa bygger Builder, Daniella byter seed-datan)
+`RecipeBuilder` används både för exempelrecepten och när användaren lägger till ett recept. Exempelrecepten får då en riktig kategori och kock (i dag hamnar de på kategori 0, som inte finns). När det fungerar tas `InMemoryRecipeRepository` bort. (Filippa bygger Builder först, Daniella byter seed-datan efteråt)
 
 ### 12. Designmönster
 Factory (`RepositoryFactory`), Builder (`RecipeBuilder`) och Repository. Observer är valfritt för varningarna.
 
 ### 13. Datum
-`PlannedMeal.Date` är `DateOnly`. Den som först sparar en måltid testar att datumet sparas och läses rätt i MongoDB, och säger till om det inte fungerar.
+`PlannedMeal.Date` är `DateOnly`. Oliver testar att datumet sparas och läses rätt i MongoDB när veckoplanen byggs, och säger till om det inte fungerar.
+
+### 14. Vem skriver vad i README
+- **Oliver:** UML-klassdiagram (Mermaid) och förklaring, projektbeskrivning, upplägg, så kör du projektet, tekniker.
+- **Filippa:** gränssnittsplan (Mermaid flowchart) och AI-deklaration (samlar in allas AI-användning).
+- **Daniella:** Fält och data, designmönster (och mönster vi valt bort), länk till granskningsnotisen.
+- **Alla:** en förbättring var i refactoring-loggen.
+
+Alla skriver i samma fil: kör `git pull` direkt innan du skriver och pusha direkt efteråt.
 
 ---
 
@@ -115,22 +126,36 @@ Factory (`RepositoryFactory`), Builder (`RecipeBuilder`) och Repository. Observe
 
 ## Läs-länkar per person
 
-
 **Alla**
-- `BESLUT.md`
-- `Recept-Konsol/README.md`
-- Beställningen: https://raw.githubusercontent.com/marcusjobb/YRGO-CLO26-HT26Kursmaterial/refs/heads/main/kurs-03-fordjupad-oop/04_csharp_hidden_gems/assignment/bestallning_recept.md
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/BESLUT.md
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/README.md
+- https://raw.githubusercontent.com/marcusjobb/YRGO-CLO26-HT26Kursmaterial/refs/heads/main/kurs-03-fordjupad-oop/04_csharp_hidden_gems/assignment/bestallning_recept.md
 
 **Filippa**
-- `Recept-Konsol/Models/Recipe.cs`, `Models/Chef.cs`, `Models/PlannedMeal.cs`
-- `Recept-Konsol/UI/RecipeMenu.cs`
-- `Recept-Konsol/Services/RecipeCalculator.cs`, `Services/MealPlanService.cs`, `Services/IMealPlanRepository.cs`
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/Recipe.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/Chef.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/Ingredient.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/UI/RecipeMenu.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/UI/ConsoleInput.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/RecipeCalculator.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IRecipeCalculator.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/InMemoryRecipeRepository.cs
 
 **Daniella**
-- `Recept-Konsol/Services/CategoryService.cs`, `Services/RepositoryFactory.cs`, `Services/IMealPlanRepository.cs`
-- `Recept-Konsol/Data/DatabaseSeeder.cs`
-- `Recept-Konsol/Models/Category.cs`, `Models/CategoryWarning.cs`
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/CategoryService.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IRecipeRepository.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IMealPlanRepository.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/MealPlanService.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/RepositoryFactory.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Data/DatabaseSeeder.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/Category.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/CategoryWarning.cs
 
 **Oliver**
-- `Recept-Konsol/Services/MealPlanService.cs`, `Services/IMealPlanRepository.cs`
-- `Recept-Konsol/Models/ShoppingListItem.cs`
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/MealPlanService.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IMealPlanService.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IMealPlanRepository.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Services/IRecipeRepository.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/PlannedMeal.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/Models/ShoppingListItem.cs
+- https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/Recept-Konsol/UI/MealPlanMenu.cs
