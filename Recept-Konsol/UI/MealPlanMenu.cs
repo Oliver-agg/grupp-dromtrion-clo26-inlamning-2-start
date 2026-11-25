@@ -36,6 +36,14 @@ public class MealPlanMenu
         }
 
         int recipeId = ConsoleInput.ReadInt("Receptets nummer", min: 1);
+
+        // Kontrollera receptet direkt, så att användaren slipper skriva ett datum i onödan.
+        if (_repository.GetRecipe(recipeId) is null)
+        {
+            ConsoleInput.WriteWarning($"Det finns inget recept med nummer {recipeId}.");
+            return;
+        }
+
         DateOnly date = ConsoleInput.ReadDate("Datum");
 
         List<string> warnings = _mealPlan.PlanMeal(recipeId, date);

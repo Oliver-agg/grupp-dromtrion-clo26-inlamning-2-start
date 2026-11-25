@@ -4,32 +4,41 @@ using Recept.Models;
 namespace Recept.Services;
 
 /// <summary>
-/// Ska byggas av er. GetWeekPlan och GetShoppingList visar demodata så att sidorna går att titta på.
-/// PlanMeal kastar NotImplementedException, och menyn visar då "Inte implementerat ännu".
+/// Veckoplan och inköpslista. Sparar via IMealPlanRepository och hämtar recept via IRecipeRepository.
+/// En vecka börjar alltid på måndag (önskemål 2).
 /// </summary>
 public class MealPlanService : IMealPlanService
 {
-    // Du behöver bygga ut detta mer: spara måltiden, och returnera varningar vid 80 % och 100 %
-    // av kategorins gräns. Samma 80 %-varning får inte visas igen förrän veckan byts (önskemål 4).
-    // Här passar till exempel mönstret Observer.
-    public List<string> PlanMeal(int recipeId, DateOnly date) => throw new NotImplementedException();
+    private readonly IMealPlanRepository _mealPlans;
+    private readonly IRecipeRepository _recipes;
 
-    // DEMO: samma påhittade måltider varje vecka. Ersätt med veckans måltider från databasen.
-    // ISOWeek räknar veckonummer med måndag som första dag (önskemål 2).
-    public List<PlannedMeal> GetWeekPlan(int year, int weekNumber)
+    public MealPlanService(IMealPlanRepository mealPlans, IRecipeRepository recipes)
     {
-        DateOnly monday = DateOnly.FromDateTime(ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday));
-        return
-        [
-            new PlannedMeal { Id = 1, Date = monday, RecipeId = 2 },
-            new PlannedMeal { Id = 2, Date = monday.AddDays(3), RecipeId = 1 },
-            new PlannedMeal { Id = 3, Date = monday.AddDays(6), RecipeId = 1 },
-        ];
+        _mealPlans = mealPlans;
+        _recipes = recipes;
     }
 
-    // DEMO: en fast lista som visar hur inköpslistan ska se ut för demoveckan ovan
-    // (Tomatsoppa en gång och Pannkakor två gånger). Ersätt med en lista som räknas fram
-    // ur veckoplanen, där samma ingrediens med samma enhet summeras till en rad.
+    // Sparar måltiden. Varningar vid 80 % och 100 % av kategorins gräns
+    // byggs av Daniella och läggs till här (beslut 9).
+    public List<string> PlanMeal(int recipeId, DateOnly date)
+    {
+        if (_recipes.GetRecipe(recipeId) is null)
+        {
+            throw new ArgumentException($"Det finns inget recept med nummer {recipeId}.");
+        }
+
+        _mealPlans.AddPlannedMeal(new PlannedMeal { Date = date, RecipeId = recipeId });
+
+        return new List<string>();
+    }
+
+    public List<PlannedMeal> GetWeekPlan(int year, int weekNumber)
+    {
+        (DateOnly monday, DateOnly sunday) = GetWeekRange(year, weekNumber);
+        return _mealPlans.GetPlannedMeals(monday, sunday);
+    }
+
+    // DEMO: byts ut i nästa steg mot en lista som räknas fram ur veckoplanen.
     public List<ShoppingListItem> GetShoppingList(int year, int weekNumber) =>
     [
         new ShoppingListItem { Name = "vetemjöl", Amount = 5m, Unit = "dl" },
@@ -40,4 +49,16 @@ public class MealPlanService : IMealPlanService
         new ShoppingListItem { Name = "gul lök", Amount = 1m, Unit = "st" },
         new ShoppingListItem { Name = "grönsaksbuljong", Amount = 3m, Unit = "dl" },
     ];
+
+    // Räknar fram måndag och söndag för en vecka. ISOWeek räknar veckor som börjar på måndag.
+    private static (DateOnly Monday, DateOnly Sunday) GetWeekRange(int year, int weekNumber)
+    {
+        if (weekNumber < 1 || weekNumber > ISOWeek.GetWeeksInYear(year))
+        {
+            throw new ArgumentException($"År {year} har ingen vecka {weekNumber}.");
+        }
+
+        DateOnly monday = DateOnly.FromDateTime(ISOWeek.ToDateTime(year, weekNumber, DayOfWeek.Monday));
+        return (monday, monday.AddDays(6));
+    }
 }

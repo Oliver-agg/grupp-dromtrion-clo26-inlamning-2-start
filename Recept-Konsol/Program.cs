@@ -30,10 +30,8 @@ catch (InvalidOperationException ex)
 // Exempeldata vid första start, om databasen är tom.
 DatabaseSeeder.SeedIfEmpty(repository, new InMemoryRecipeRepository());
 
-// De här två ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".
-// MealPlanService får sina repositories via konstruktorn när den byggs,
-// till exempel med RepositoryFactory.CreateMealPlanRepository().
-IMealPlanService mealPlan = new MealPlanService();
+// Veckoplanen får sin lagring och recepten via konstruktorn.
+IMealPlanService mealPlan = new MealPlanService(RepositoryFactory.CreateMealPlanRepository(), repository);
 IRecipeCalculator calculator = new RecipeCalculator();
 
 var recipeMenu = new RecipeMenu(repository, categories, calculator);
