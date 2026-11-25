@@ -1,10 +1,9 @@
 // Startpunkt för Recept (konsol). Här kopplas alla delar ihop, och sedan startar menyn.
 using System.Globalization;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using Recept.Data;
 using Recept.Services;
 using Recept.UI;
-using Recept.Data;
 
 // Svenska tecken och svenskt talformat (2,5 i stället för 2.5).
 Console.OutputEncoding = Encoding.UTF8;
@@ -12,28 +11,32 @@ Console.InputEncoding = Encoding.UTF8;
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("sv-SE");
 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("sv-SE");
 
-// Connectionstring läses från user-secrets, aldrig från koden.
-var config = new ConfigurationBuilder()
-    .AddUserSecrets<Program>()
-    .Build();
+// Factory (designmönster) skapar allt som pratar med databasen. Connectionstringen läses
+// från user-secrets inne i Factory. Saknas den, eller svarar inte databasen,
+// visas ett meddelande på svenska i stället för att programmet kraschar.
+IRecipeRepository repository;
+ICategoryService categories;
+try
+{
+    repository = RepositoryFactory.Create();
+    categories = RepositoryFactory.CreateCategoryService();
+}
+catch (InvalidOperationException ex)
+{
+    ConsoleInput.WriteWarning(ex.Message);
+    return;
+}
 
-string? connectionString = config["DB_CONNECTION"];
-
-
-// Byt den här raden när ni har en riktig databas, till exempel:
-//   IRecipeRepository repository = new MongoRecipeRepository(connectionString);
-// Er databasklass ska skapa databasen och seeda exempeldata vid första start, om den är tom.
-// Här passar till exempel mönstret Factory: en klass som väljer och skapar rätt repository
-// utifrån konfigurationen, så att Program.cs inte behöver känna till varje databasklass.
-IRecipeRepository repository = RepositoryFactory.Create();
+// Exempeldata vid första start, om databasen är tom.
 DatabaseSeeder.SeedIfEmpty(repository, new InMemoryRecipeRepository());
 
-// De här tre ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".
-ICategoryService categories = RepositoryFactory.CreateCategoryService();
+// De här två ska ni bygga. Tills dess visar menyn "Inte implementerat ännu".
+// MealPlanService får sina repositories via konstruktorn när den byggs,
+// till exempel med RepositoryFactory.CreateMealPlanRepository().
 IMealPlanService mealPlan = new MealPlanService();
 IRecipeCalculator calculator = new RecipeCalculator();
 
-var recipeMenu = new RecipeMenu(repository, calculator);
+var recipeMenu = new RecipeMenu(repository, categories, calculator);
 var categoryMenu = new CategoryMenu(categories);
 var mealPlanMenu = new MealPlanMenu(mealPlan, repository, calculator);
 

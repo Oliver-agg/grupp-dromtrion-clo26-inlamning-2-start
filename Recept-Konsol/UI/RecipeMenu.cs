@@ -1,4 +1,3 @@
-using Recept.Data;
 using Recept.Models;
 using Recept.Services;
 
@@ -11,11 +10,13 @@ namespace Recept.UI;
 public class RecipeMenu
 {
     private readonly IRecipeRepository _repository;
+    private readonly ICategoryService _categories;
     private readonly IRecipeCalculator _calculator;
 
-    public RecipeMenu(IRecipeRepository repository, IRecipeCalculator calculator)
+    public RecipeMenu(IRecipeRepository repository, ICategoryService categories, IRecipeCalculator calculator)
     {
         _repository = repository;
+        _categories = categories;
         _calculator = calculator;
     }
 
@@ -46,12 +47,7 @@ public class RecipeMenu
         Console.WriteLine();
         Console.WriteLine("Välj kategori: ");
 
-        var categories = new CategoryService(
-            new MongoCategoryRepository(
-                ConnectionStringProvider.GetConnectionString()));
-
-
-        foreach (var category in categories.GetAll())
+        foreach (Category category in _categories.GetAll())
         {
             Console.WriteLine($"{category.Id}. {category.Name}");
         }
@@ -192,7 +188,9 @@ public class RecipeMenu
         }
 
         Console.WriteLine();
-        Console.WriteLine($"Kategori: {recipe.CategoryId}");
+        string categoryName = _categories.GetAll()
+            .FirstOrDefault(c => c.Id == recipe.CategoryId)?.Name ?? "(ingen kategori)";
+        Console.WriteLine($"Kategori: {categoryName}");
 
         if (!string.IsNullOrWhiteSpace(recipe.Note))
         {

@@ -1,6 +1,5 @@
 using Recept.Models;
 using Recept.Services;
-using SharpCompress.Compressors.ZStandard.Unsafe;
 
 namespace Recept.UI;
 
