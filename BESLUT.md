@@ -1,16 +1,14 @@
 # Beslut – grupp dromtrion
 
 Här står allt vi har kommit överens om, så att vi inte krockar eller bygger olika saker.
-Filen är också vår **beslutslogg**: den är underlag till VG-delen i reflektionen ("Beslut och alternativ").
 
-**Så använder vi filen**
+**Så används filen**
 - Nya beslut läggs till här och pushas. Skriv i Discord att filen är ändrad.
 - Håller du inte med om något: säg till i Discord inom ett dygn. Säger ingen något gäller beslutet.
 - Ändrar du en fil som någon annan äger: säg till i Discord först.
 
-**När du jobbar med Claude:** be den läsa repot direkt i stället för att klistra in kod, till exempel:
-*"Läs https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/BESLUT.md och filerna under min uppgift."*
-Går det inte att läsa hela repot, använd länkarna längst ner.
+**När du jobbar med AI:** be den läsa repot direkt i stället för att klistra in kod, till exempel:
+*"Läs https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/BESLUT.md och filerna under min uppgift. Fungerar inte detta klistra in all raw länkar som kan agera likadant som ovanstående."*
 
 ---
 
@@ -27,8 +25,6 @@ Går det inte att läsa hela repot, använd länkarna längst ner.
 
 ## Vem äger vilka filer
 
-| Fil eller mapp | Ägare |
-|---|---|
 | `Models/Recipe.cs`, `Chef.cs`, `Ingredient.cs`, `PlannedMeal.cs` | Filippa |
 | `Models/Category.cs` | Daniella |
 | `Models/CategoryWarning.cs`, `ShoppingListItem.cs` | Oliver |
@@ -49,9 +45,9 @@ Går det inte att läsa hela repot, använd länkarna längst ner.
 
 ### 1. Databas: MongoDB Atlas
 Ett gemensamt kluster, databasen heter `recept`. Varje person har en egen databasanvändare.
-*Alternativ: SQLite (fildatabas) – inte tillåtet, alla körde fildatabas i Inlämning 1. MongoDB lokalt med Docker – valdes bort för att slippa installera Docker.*
+*Alternativ: SQLite (fildatabas) – inte tillåtet, alla körde fildatabas i Hotel Grandioso. MongoDB lokalt med Docker – valdes bort för att slippa installera Docker.*
 
-### 2. Id är heltal: 1, 2, 3 …
+### 2. Id är heltal
 Nästa nummer räknas fram i collection `counters` med `MongoContext.GetNextId`. Alla repositories använder samma metod.
 *Alternativ: MongoDB:s egna långa id (ObjectId). Valdes bort för att menyerna redan frågar efter "nummer", och interfacen använder `int`.*
 
@@ -119,7 +115,6 @@ Factory (`RepositoryFactory`), Builder (`RecipeBuilder`) och Repository. Observe
 
 ## Läs-länkar per person
 
-Bas för alla länkar: `https://raw.githubusercontent.com/Oliver-agg/grupp-dromtrion-clo26-inlamning-2-start/refs/heads/main/`
 
 **Alla**
 - `BESLUT.md`
