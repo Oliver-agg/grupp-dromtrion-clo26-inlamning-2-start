@@ -23,4 +23,7 @@ public static class RepositoryFactory
 
     public static IMealPlanRepository CreateMealPlanRepository() =>
         new MongoMealPlanRepository(Context);
+
+    public static CategoryLimitChecker CreateCategoryLimitChecker() =>
+        new CategoryLimitChecker(new MongoCategoryRepository(Context), Create(), CreateMealPlanRepository());
 }

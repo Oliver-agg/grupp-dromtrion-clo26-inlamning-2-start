@@ -31,7 +31,10 @@ catch (InvalidOperationException ex)
 DatabaseSeeder.SeedIfEmpty(repository, new InMemoryRecipeRepository());
 
 // Veckoplanen får sin lagring och recepten via konstruktorn.
-IMealPlanService mealPlan = new MealPlanService(RepositoryFactory.CreateMealPlanRepository(), repository);
+IMealPlanService mealPlan = new MealPlanService(
+    RepositoryFactory.CreateMealPlanRepository(), 
+    repository, 
+    RepositoryFactory.CreateCategoryLimitChecker());
 IRecipeCalculator calculator = new RecipeCalculator();
 
 var recipeMenu = new RecipeMenu(repository, categories, calculator);

@@ -11,15 +11,16 @@ public class MealPlanService : IMealPlanService
 {
     private readonly IMealPlanRepository _mealPlans;
     private readonly IRecipeRepository _recipes;
+    private readonly CategoryLimitChecker _limitChecker;
 
-    public MealPlanService(IMealPlanRepository mealPlans, IRecipeRepository recipes)
+    public MealPlanService(IMealPlanRepository mealPlans, IRecipeRepository recipes, CategoryLimitChecker limitChecker)
     {
         _mealPlans = mealPlans;
         _recipes = recipes;
+        _limitChecker = limitChecker;
     }
 
     // Sparar måltiden. Varningar vid 80 % och 100 % av kategorins gräns
-    // byggs av Daniella och läggs till här (beslut 9).
     public List<string> PlanMeal(int recipeId, DateOnly date)
     {
         if (_recipes.GetRecipe(recipeId) is null)
@@ -29,7 +30,7 @@ public class MealPlanService : IMealPlanService
 
         _mealPlans.AddPlannedMeal(new PlannedMeal { Date = date, RecipeId = recipeId });
 
-        return new List<string>();
+        return _limitChecker.CheckWarnings(date);
     }
 
     public List<PlannedMeal> GetWeekPlan(int year, int weekNumber)
