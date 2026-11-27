@@ -43,7 +43,7 @@ public class CategoryLimitChecker
         // Kontrollera alla kategorier som har en veckogräns.
         foreach (Category category in _categories.GetAll())
         {
-            if(category.MaxPerWeek is not int limit || limit > 1)
+            if(category.MaxPerWeek is not int limit)
             {
                 continue;
             }
