@@ -1,4 +1,5 @@
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
 
 namespace Recept.Data;
@@ -14,6 +15,15 @@ public class MongoContext
 
     private readonly IMongoDatabase _database;
     private readonly IMongoCollection<BsonDocument> _counters;
+
+    // Läs dokument även om de har fält som inte längre finns i modellen,
+    // till exempel gamla kockar med LastName. Annars kraschar programmet
+    // varje gång vi tar bort ett fält ur en modell (beslut 5).
+    static MongoContext()
+    {
+        var conventions = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+        ConventionRegistry.Register("IgnoreExtraElements", conventions, _ => true);
+    }
 
     public MongoContext(string connectionString)
     {
