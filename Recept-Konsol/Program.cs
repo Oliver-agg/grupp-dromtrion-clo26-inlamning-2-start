@@ -11,6 +11,13 @@ Console.InputEncoding = Encoding.UTF8;
 CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("sv-SE");
 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("sv-SE");
 
+
+static void ExpectError(Action action)
+{
+    try { action(); Console.WriteLine("FEL: inget undantag kastades"); }
+    catch (ArgumentException ex) { Console.WriteLine($"OK: {ex.Message}"); }
+}
+
 // Factory (designmönster) skapar allt som pratar med databasen. Connectionstringen läses
 // från user-secrets inne i Factory. Saknas den, eller svarar inte databasen,
 // visas ett meddelande på svenska i stället för att programmet kraschar.
