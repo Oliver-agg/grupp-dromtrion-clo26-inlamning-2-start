@@ -38,17 +38,52 @@ public class MealPlanService : IMealPlanService
         return _mealPlans.GetPlannedMeals(monday, sunday);
     }
 
-    // DEMO: byts ut i nästa steg mot en lista som räknas fram ur veckoplanen.
-    public List<ShoppingListItem> GetShoppingList(int year, int weekNumber) =>
-    [
-        new ShoppingListItem { Name = "vetemjöl", Amount = 5m, Unit = "dl" },
-        new ShoppingListItem { Name = "mjölk", Amount = 12m, Unit = "dl" },
-        new ShoppingListItem { Name = "ägg", Amount = 6m, Unit = "st" },
-        new ShoppingListItem { Name = "salt", Amount = 0.5m, Unit = "tsk" },
-        new ShoppingListItem { Name = "krossade tomater", Amount = 400m, Unit = "g" },
-        new ShoppingListItem { Name = "gul lök", Amount = 1m, Unit = "st" },
-        new ShoppingListItem { Name = "grönsaksbuljong", Amount = 3m, Unit = "dl" },
-    ];
+    // Räknar fram inköpslistan ur veckoplanen. Samma ingrediens med samma enhet
+    // summeras till en rad. Listan sparas inte, så den visar alltid aktuell data (beslut 9).
+    public List<ShoppingListItem> GetShoppingList(int year, int weekNumber)
+    {
+        var items = new List<ShoppingListItem>();
+
+        foreach (PlannedMeal meal in GetWeekPlan(year, weekNumber))
+        {
+            Recipe? recipe = _recipes.GetRecipe(meal.RecipeId);
+            if (recipe is null)
+            {
+                // Receptet har tagits bort efter att måltiden planerades.
+                continue;
+            }
+
+            foreach (Ingredient ingredient in recipe.Ingredients)
+            {
+                AddToList(items, ingredient);
+            }
+        }
+
+        return items.OrderBy(i => i.Name).ToList();
+    }
+
+    // Lägger till ingrediensen, eller ökar mängden om samma namn och enhet redan finns.
+    // Stora och små bokstäver räknas som samma, så "Mjölk" och "mjölk" blir en rad.
+    private static void AddToList(List<ShoppingListItem> items, Ingredient ingredient)
+    {
+        ShoppingListItem? existing = items.FirstOrDefault(i =>
+            string.Equals(i.Name, ingredient.Name, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(i.Unit, ingredient.Unit, StringComparison.OrdinalIgnoreCase));
+
+        if (existing is null)
+        {
+            items.Add(new ShoppingListItem
+            {
+                Name = ingredient.Name,
+                Amount = ingredient.Amount,
+                Unit = ingredient.Unit,
+            });
+        }
+        else
+        {
+            existing.Amount += ingredient.Amount;
+        }
+    }
 
     // Räknar fram måndag och söndag för en vecka. ISOWeek räknar veckor som börjar på måndag.
     private static (DateOnly Monday, DateOnly Sunday) GetWeekRange(int year, int weekNumber)
