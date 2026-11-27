@@ -37,45 +37,26 @@ public class RecipeMenu
 
     public void AddRecipe()
     {
-        var recipe = new Recipe
+
+        //Beslut 4: ett recept måste ha en kock, så det finns inget att välja utan kockar.
+
+        List<Chef> chefs = _repository.GetAllChefs();
+        if (chefs.Count ==0)
         {
-            Name = ConsoleInput.ReadRequiredText("Namn"),
-            Servings = ConsoleInput.ReadInt("Antal portioner", min: 1, max: 100),
-        };
-
-
-        Console.WriteLine();
-        Console.WriteLine("Välj kategori: ");
-
-        foreach (Category category in _categories.GetAll())
-        {
-            Console.WriteLine($"{category.Id}. {category.Name}");
+            ConsoleInput.WriteWarning("Det finns inga kockar. Lägg till en kock (menyval 6) först.");
+            return;
         }
 
-        recipe.CategoryId = ConsoleInput.ReadInt(
-            "Kategorins nummer",
-            min: 1);
+        RecipeBuilder builder = new RecipeBuilder()
+            .WithName(ConsoleInput.ReadRequiredText("Namn"))
+            .WithServings(ConsoleInput.ReadInt("Antal portioner", min: 1, max: 100))
+            .InCategory(AskForCategoryId())
+            .ByChef(AskForChefId(chefs))
+            .WithNote(ConsoleInput.ReadText("Anteckning (valfri)"));
 
-        recipe.Note = ConsoleInput.ReadText(
-            "Anteckning (valfri)");
+        ReadIngredients(builder);
 
-        Console.WriteLine("Ingredienser. Lämna namnet tomt när du är klar.");
-        while (true)
-        {
-            string name = ConsoleInput.ReadText("  Ingrediens");
-            if (name.Length == 0)
-            {
-                break;
-            }
-
-            recipe.Ingredients.Add(new Ingredient
-            {
-                Name = name,
-                Amount = ConsoleInput.ReadDecimal("  Mängd", min: 0),
-                Unit = ConsoleInput.ReadRequiredText("  Enhet (dl, st, g ...)"),
-            });
-        }
-
+        Recipe recipe = builder.Build();
         _repository.AddRecipe(recipe);
         Console.WriteLine($"Receptet \"{recipe.Name}\" är sparat.");
     }
@@ -166,6 +147,88 @@ public class RecipeMenu
         Console.WriteLine($"Kocken {chef.FirstName} är tillagd.");
     }
 
+
+    private int AskForCategoryId()
+    {
+        List<Category> categories = _categories.GetAll();
+
+        Console.WriteLine();
+        Console.WriteLine("Välj kategori: ");
+
+        foreach (Category category in categories)
+        {
+            Console.WriteLine($"{category.Id} - {category.Name}");
+        }
+
+        while (true)
+        {
+            int id = ConsoleInput.ReadInt("Kategorins nummer, min: 1");
+            if (categories.Any(c => c.Id == id))
+            {
+                return id;
+            }
+
+            ConsoleInput.WriteWarning($"Det finns ingen kategori med {id}");
+        }
+    }
+
+    private static int AskForChefId(List<Chef> chefs)
+
+    {
+        Console.WriteLine();
+        Console.WriteLine("Välj kock: ");
+        
+        foreach (Chef chef in chefs)
+        {
+            Console.WriteLine($"{chef.Id} - {chef.FirstName}");
+        }
+
+        while (true)
+        {
+            int id = ConsoleInput.ReadInt("Kockens nummer", min: 1);
+            if (chefs.Any(c => c.Id == id))
+            {
+                return id;
+            }
+
+            ConsoleInput.WriteWarning($"Det finns ingen kock med nummer {id}");
+        }
+    }
+
+
+    //Mängd och enhet kontrolleras av RecipeBuilder. Är något fel visas meddelandet 
+    //och användaren får skriva in ingrediensen igen.
+    private static void ReadIngredients(RecipeBuilder builder)
+    {
+        string units = string.Join(", ", RecipeBuilder.AllowedUnits);
+
+        Console.WriteLine("Ingredienser. Lämna namnet tomt när du är klar.");
+        while (true)
+        {
+            string name = ConsoleInput.ReadText(" Ingrediens");
+            if (name.Length == 0)
+            {
+                return;
+            }
+
+            decimal amount = ConsoleInput.ReadDecimal(" Mängd");
+            string unit = ConsoleInput.ReadRequiredText($" Enhet ({units})");
+
+            try
+            {
+                builder.WithIngredient(name, amount, unit);
+            }
+            catch (ArgumentException ex)
+            {
+                ConsoleInput.WriteWarning(ex.Message);
+            }
+        }
+    }
+
+    private string GetChefName(int? chefId) =>
+        _repository.GetAllChefs().FirstOrDefault(c => c.Id == chefId)?.FirstName ?? "(okänd kock)";
+
+
     private Recipe? AskForRecipe()
     {
         ListRecipes();
@@ -192,6 +255,7 @@ public class RecipeMenu
         string categoryName = _categories.GetAll()
             .FirstOrDefault(c => c.Id == recipe.CategoryId)?.Name ?? "(ingen kategori)";
         Console.WriteLine($"Kategori: {categoryName}");
+        Console.WriteLine($"Kock: {GetChefName(recipe.ChefId)}");
 
         if (!string.IsNullOrWhiteSpace(recipe.Note))
         {
