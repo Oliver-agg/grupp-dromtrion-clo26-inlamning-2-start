@@ -162,13 +162,13 @@ public class RecipeMenu
 
         while (true)
         {
-            int id = ConsoleInput.ReadInt("Kategorins nummer, min: 1");
+            int id = ConsoleInput.ReadInt("Kategorins nummer", min: 1);
             if (categories.Any(c => c.Id == id))
             {
                 return id;
             }
 
-            ConsoleInput.WriteWarning($"Det finns ingen kategori med {id}");
+            ConsoleInput.WriteWarning($"Det finns ingen kategori med nummer {id}.");
         }
     }
 
