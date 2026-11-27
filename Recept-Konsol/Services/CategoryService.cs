@@ -10,9 +10,12 @@ public class CategoryService : ICategoryService
 {
     private const string FallbackName = "Övrigt";
     private readonly ICategoryRepository _repository;
-    public CategoryService(ICategoryRepository repository)
+    private readonly IRecipeRepository _recipes;
+
+    public CategoryService(ICategoryRepository repository, IRecipeRepository recipes)
     {
-        _repository = repository; 
+        _repository = repository;
+        _recipes = recipes;
     }
 
     public List<Category> GetAll() => _repository.GetAll();
@@ -41,7 +44,8 @@ public class CategoryService : ICategoryService
             throw new ArgumentException($"Kategorin \"{FallbackName}\" kan inte tas bort.");
         }
 
-        //TODO :: flytta kategorins recept till "Övrigt" . Kräver CategoryId på Recipe
+        Category fallback = _repository.GetAll().First(c => c.Name == FallbackName);
+        _recipes.MoveRecipesToCategory(categoryId, fallback.Id);
         _repository.Delete(categoryId);
     }
 

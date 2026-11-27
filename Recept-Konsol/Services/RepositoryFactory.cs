@@ -18,7 +18,7 @@ public static class RepositoryFactory
     {
         var repository = new MongoCategoryRepository(Context);
         DatabaseSeeder.SeedCategoriesIfEmpty(repository);
-        return new CategoryService(repository);
+        return new CategoryService(repository, Create());
     }
 
     public static IMealPlanRepository CreateMealPlanRepository() =>
