@@ -142,23 +142,24 @@ public class RecipeMenu
 
     public void ListChefs()
     {
-        foreach (Chef chef in _repository.GetAllChefs())
+        List<Chef> chefs = _repository.GetAllChefs();
+        if (chefs.Count == 0)
         {
-            Console.WriteLine($"{chef.Id}. {chef.FirstName} {chef.LastName}");
+            Console.WriteLine("Det finns inga kockar än!");
+            return;
+        }
+
+        foreach (Chef chef in chefs)
+        {
+            Console.WriteLine($"{chef.Id} - {chef.FirstName}");
         }
     }
 
     public void AddChef()
     {
-        // Fälten följer modellen Chef. Tar ni bort ett fält ur modellen, ta bort raden här också.
         var chef = new Chef
         {
-            FirstName = ConsoleInput.ReadRequiredText("Förnamn"),
-            LastName = ConsoleInput.ReadText("Efternamn"),
-            BirthDate = ConsoleInput.ReadDate("Födelsedatum"),
-            HairColor = ConsoleInput.ReadText("Hårfärg"),
-            HeightCm = ConsoleInput.ReadInt("Längd i cm", min: 0, max: 300),
-            Religion = ConsoleInput.ReadText("Religion"),
+            FirstName = ConsoleInput.ReadRequiredText("Förnamn")
         };
 
         _repository.AddChef(chef);
