@@ -147,51 +147,33 @@ public class RecipeMenu
         Console.WriteLine($"Kocken {chef.FirstName} är tillagd.");
     }
 
+    private int AskForCategoryId() =>
+        AskForChoice("Välj kategori:", "Kategorins nummer", "kategori",
+            _categories.GetAll().Select(c => (Id: c.Id, Name: c.Name)).ToList());
 
-    private int AskForCategoryId()
+    private static int AskForChefId(List<Chef> chefs) =>
+        AskForChoice("Välj kock:", "Kockens nummer", "kock",
+            chefs.Select(c => (Id: c.Id, Name: c.FirstName)).ToList());
+
+    // Visar ett numrerat urval och frågar tills användaren väljer ett nummer som finns.
+    private static int AskForChoice(string heading, string prompt, string noun, List<(int Id, string Name)> options)
     {
-        List<Category> categories = _categories.GetAll();
-
         Console.WriteLine();
-        Console.WriteLine("Välj kategori: ");
-
-        foreach (Category category in categories)
+        Console.WriteLine(heading);
+        foreach ((int id, string name) in options)
         {
-            Console.WriteLine($"{category.Id} - {category.Name}");
+            Console.WriteLine($"{id} - {name}");
         }
 
         while (true)
         {
-            int id = ConsoleInput.ReadInt("Kategorins nummer", min: 1);
-            if (categories.Any(c => c.Id == id))
+            int chosen = ConsoleInput.ReadInt(prompt, min: 1);
+            if (options.Any(o => o.Id == chosen))
             {
-                return id;
+                return chosen;
             }
 
-            ConsoleInput.WriteWarning($"Det finns ingen kategori med nummer {id}.");
-        }
-    }
-
-    private static int AskForChefId(List<Chef> chefs)
-
-    {
-        Console.WriteLine();
-        Console.WriteLine("Välj kock: ");
-        
-        foreach (Chef chef in chefs)
-        {
-            Console.WriteLine($"{chef.Id} - {chef.FirstName}");
-        }
-
-        while (true)
-        {
-            int id = ConsoleInput.ReadInt("Kockens nummer", min: 1);
-            if (chefs.Any(c => c.Id == id))
-            {
-                return id;
-            }
-
-            ConsoleInput.WriteWarning($"Det finns ingen kock med nummer {id}.");
+            ConsoleInput.WriteWarning($"Det finns ingen {noun} med nummer {chosen}.");
         }
     }
 
