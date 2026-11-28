@@ -38,7 +38,7 @@ public class RecipeMenu
     public void AddRecipe()
     {
 
-        //Beslut 4: ett recept måste ha en kock, så det finns inget att välja utan kockar.
+        // Beslut 4: ett recept måste ha en kock, så det finns inget att välja utan kockar.
 
         List<Chef> chefs = _repository.GetAllChefs();
         if (chefs.Count ==0)
@@ -196,8 +196,8 @@ public class RecipeMenu
     }
 
 
-    //Mängd och enhet kontrolleras av RecipeBuilder. Är något fel visas meddelandet 
-    //och användaren får skriva in ingrediensen igen.
+    // Mängd och enhet kontrolleras av RecipeBuilder. Är något fel visas meddelandet 
+    // och användaren får skriva in ingrediensen igen.
     private static void ReadIngredients(RecipeBuilder builder)
     {
         string units = string.Join(", ", RecipeBuilder.AllowedUnits);

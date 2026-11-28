@@ -19,7 +19,6 @@ public class RecipeBuilder
     private int? _chefId;
     private string _note = "";
 
-    // Receptets namn
     public RecipeBuilder WithName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
@@ -31,7 +30,6 @@ public class RecipeBuilder
         return this;
     }
 
-    // Antal portioner
     public RecipeBuilder WithServings(int servings)
     {
         if (servings < 1)
@@ -43,7 +41,6 @@ public class RecipeBuilder
         return this;
     }
 
-    // Receptets kategori
     public RecipeBuilder InCategory(int categoryId)
     {
         if (categoryId < 1)
@@ -55,7 +52,6 @@ public class RecipeBuilder
         return this;
     }
 
-    // Kocken som skapat receptet
     public RecipeBuilder ByChef(int chefId)
     {
         if (chefId < 1)
@@ -67,14 +63,12 @@ public class RecipeBuilder
         return this;
     }
 
-    // Valfri anteckning
     public RecipeBuilder WithNote(string note)
     {
         _note = note.Trim();
         return this;
     }
 
-    // Lägger till en ingrediens
     public RecipeBuilder WithIngredient(string name, decimal amount, string unit)
     {
         if (string.IsNullOrWhiteSpace(name))
