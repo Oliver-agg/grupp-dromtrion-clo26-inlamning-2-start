@@ -119,6 +119,64 @@ Vid första start skapar programmet databasen och lägger in exempeldata, om dat
 - **Databas:** [SQLite / MySQL / SQL Server / PostgreSQL / MongoDB / minnesdatabas]
 - **App:** [kort beskrivning]
 
+## Gränssnittsplan
+
+Programmet är ett konsolprogram med en huvudmeny och två "undermenyer". Varje val körs, och sedan visas menyn igen tills användaren väljer 0. Om något går fel inne i ett val (till exempel ogiltig inmatning) visar menyn ett meddelande och programmet fortsätter.
+
+```mermaid
+flowchart TD
+    Start(["Programmet startar"]) --> Anslut{"Svarar databasen?"}
+    Anslut -- "Nej" --> Fel["Meddelande på svenska, programmet avslutas"]
+    Anslut -- "Ja" --> Huvud["Huvudmeny Recept"]
+    Huvud --> Slut(["0. Avsluta"])
+
+    subgraph Recept ["Recept"]
+        V1["1. Lista recept"]
+        V2["2. Lägg till recept"] --> K{"Finns det kockar?"}
+        K -- "Nej" --> KV["Varning: lägg till en kock först"]
+        K -- "Ja" --> KI["Namn, portioner, kategori, kock och anteckning"]
+        KI --> ING["Ingredienser: mängd större än 0 och enhet ur listan"]
+        ING --> SPARA["Receptet sparas"]
+        V3["3. Visa ett recept"] --> V3a["Välj recept, visa ingredienser, kategori och kock"]
+        V4["4. Ta bort recept"] --> V4a{"Bekräfta ta bort?"}
+        V4a -- "Ja" --> V4b["Receptet tas bort"]
+        V4a -- "Nej" --> V4c["Inget tas bort"]
+        V5["5. Sök på ingrediens"] --> V5a["Visa recept som innehåller ingrediensen"]
+        V8["8. Visa recept för annat antal portioner"] --> V8a["Välj recept och antal portioner, visa omräknade mängder"]
+    end
+
+    subgraph Kockar ["Kockar"]
+        V6["6. Lägg till kock"] --> V6a["Skriv förnamn, kocken sparas"]
+        V7["7. Lista kockar"]
+    end
+
+    subgraph Kat ["Kategorier och gränser"]
+        V9["9. Kategorier och gränser"] --> C1["1. Lista kategorier"]
+        V9 --> C2["2. Lägg till kategori"]
+        V9 --> C3["3. Ta bort kategori, recepten flyttas till Övrigt"]
+        V9 --> C4["4. Sätt gräns per vecka"]
+    end
+
+    subgraph Plan ["Veckoplan och inköpslista"]
+        V10["10. Veckoplan och inköpslista"] --> P1["1. Planera en måltid: välj recept och datum, varning om kategorin används för ofta"]
+        V10 --> P2["2. Visa veckoplan: välj år och vecka"]
+        V10 --> P3["3. Visa inköpslista: välj år och vecka"]
+    end
+
+    Huvud --> V1
+    Huvud --> V2
+    Huvud --> V3
+    Huvud --> V4
+    Huvud --> V5
+    Huvud --> V6
+    Huvud --> V7
+    Huvud --> V8
+    Huvud --> V9
+    Huvud --> V10
+```
+
+Kort förklaring: huvudmenyn visar alla funktioner. Val 2 kräver minst en kock, eftersom varje recept har en kock (beslut 4). Mängd och enhet kontrolleras av `RecipeBuilder`. Val 9 och 10 öppnar egna undermenyer, och 0 i en undermeny går tillbaka till huvudmenyn.
+
 ## UML-klassdiagram
 
 <!-- Ersätt klassen Ersatt med era egna klasser och relationer. Mermaid behöver minst en klass för att rendera. -->
