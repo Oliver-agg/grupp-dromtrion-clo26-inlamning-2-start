@@ -43,18 +43,61 @@ Ett ärende per problem. Ett nytt ärende för varje nytt problem. Numrera i ord
 
 Kopiera blocket nedan för varje ärende. Fyll i så mycket som ni kan. Ett kort svar är bättre än ingen logg.
 
-### P1: rubrik
+### P1: RecipeBuilder byggde inte
 
-- **Typ:** 
-- **Hittad av:** 
-- **Datum:** 
-- **Steg för att återskapa:** 
-- **Förväntat:**
-- **Faktiskt:**
-- **Fel-meddelande (om något):** 
-- **Åtgärd:**
-- **Verifierad av:** vem som kontrollerade att det fungerar, och hur.
-- **Status:** öppen / löst / accepterat (och varför, om accepterat). 
+- **Typ:** bugg
+- **Hittad av:** Filippa
+- **Datum:** 2026-11-27
+- **Steg för att återskapa:**  Kör `dotnet build Projekt.slnx` med `private interface _categoryId;` i `RecipeBuilder`.
+- **Förväntat:** Bygget går igenom.
+- **Faktiskt:** Fyra felmeddelanden (CS0118, CS0119, CS0161 och en varning, CS0162).
+- **Fel-meddelande (om något):** `'RecipeBuilder._categoryId' is a type but is used like a variable`, och `not all code paths return a value`.
+- **Orsak (om ni vet den):** Två skrivfel när koden skrevs in: `interface` i stället för `int`, och en slutklammer på fel ställe i `ByChef`.
+- **Åtgärd:** Rättade typen och flyttade klammern. Fixat före commit, så det finns ingen commit-hash.
+- **Verifierad av:** vem som kontrollerade att det fungerar, och hur. Filippa, `dotnet build` utan fel.
+- **Status:** öppen / löst / accepterat (och varför, om accepterat). löst
+
+### P2: Gamla kockar i Atlas med fält som inte längre finns
+
+- **Typ:** quirk
+- **Hittad av:** Filippa
+- **Datum:** 2026-11-27
+- **Steg för att återskapa:**  Förenkla `Chef` till Id och FirstName och kör mot en databas som redan har kockar med de gamla fälten.
+- **Förväntat:** `chefs` innehåller bara Id och FirstName.
+- **Faktiskt:** De gamla dokumenten hade kvar efternamn, religion med mera.
+- **Fel-meddelande (om något):** Inget. Åtgärden gjordes innan något fel hann visas.
+- **Orsak (om ni vet den):** Databasen seedades med den gamla `Chef`-klassen, och en ändrad klass ändrar inte data som redan ligger i Atlas.
+- **Åtgärd:** Tömde collectionen `chefs` i Atlas. Vid nästa start seedades kocken Kim om, bara med förnamn.
+- **Verifierad av:** vem som kontrollerade att det fungerar, och hur. Filippa, genom att lista kockar (val 7) och titta på dokumenten i Atlas.
+- **Status:** öppen / löst / accepterat (och varför, om accepterat). löst
+
+### P3: Autentitisering mot Atlas misslyckades
+
+- **Typ:** krångel
+- **Hittad av:** Filippa
+- **Datum:** 2026-11-27
+- **Steg för att återskapa:**  Kör programmet med en giltig sträng, med min IP-adress godkänd under Network Access i Atlas.
+- **Förväntat:** Inloggning och anslutning.
+- **Faktiskt:** Programmet visade "Kunde inte ansluta till databasen".
+- **Fel-meddelande (om något):** `Unable to authenticate using sasl protocol mechanism SCRAM-SHA-1.`
+- **Orsak (om ni vet den):** Okänd. Användarnamn och lösenord godkändes inte av Atlas.
+- **Åtgärd:** Skapade en ny databasanvändare med läs- och skrivrättigheter och ett lösenord med bara bokstäver och siffror, och satte om `DB_CONNECTION`.
+- **Verifierad av:** vem som kontrollerade att det fungerar, och hur. Filippa, programmet startade och kockarna kunde listas.
+- **Status:** öppen / löst / accepterat (och varför, om accepterat). löst
+
+### P4: Connectionstringen är ogiltig
+
+- **Typ:** krångel
+- **Hittad av:** Filippa
+- **Datum:** 2026-11-27
+- **Steg för att återskapa:** Sätt `DB_CONNECTION` i user-secrets med ett tomt lösenord (`användare:@kluster`) och kör `dotnet run --project Recept-Konsol`.
+- **Förväntat:** Programmet ansluter till Atlas.
+- **Faktiskt:** Programmet kraschade i `MongoContext`.
+- **Fel-meddelande (om något):** `MongoConfigurationException: The connection string is not valid.`
+- **Orsak (om ni vet den):** ** Lösenordet saknades i strängen, så MongoDB-drivrutinen kunde inte tolka den.
+- **Åtgärd:** Satte om `DB_CONNECTION` med en komplett sträng. Ingen kodändring.
+- **Verifierad av:** vem som kontrollerade att det fungerar, och hur. Filippa, genom att starta programmet och se menyn.
+- **Status:** öppen / löst / accepterat (och varför, om accepterat). löst
 
 ---
 
