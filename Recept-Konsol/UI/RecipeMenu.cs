@@ -126,7 +126,7 @@ public class RecipeMenu
         List<Chef> chefs = _repository.GetAllChefs();
         if (chefs.Count == 0)
         {
-            Console.WriteLine("Det finns inga kockar än!");
+            Console.WriteLine("Det finns inga kockar än.");
             return;
         }
 
@@ -191,7 +191,7 @@ public class RecipeMenu
                 return id;
             }
 
-            ConsoleInput.WriteWarning($"Det finns ingen kock med nummer {id}");
+            ConsoleInput.WriteWarning($"Det finns ingen kock med nummer {id}.");
         }
     }
 
