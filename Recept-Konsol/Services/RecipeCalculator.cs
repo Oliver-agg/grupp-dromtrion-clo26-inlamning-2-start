@@ -40,6 +40,6 @@ public class RecipeCalculator : IRecipeCalculator
     public string FormatAmount(decimal amount, string unit)
     {
         decimal rounded = Math.Round(amount, MaxDecimals, MidpointRounding.AwayFromZero);
-        return $"{rounded.ToString("0.##", Swedish)} {unit}".TrimEnd();
+        return $"{rounded.ToString("0.##", Swedish)} {unit}";
     }
 }
