@@ -103,7 +103,7 @@ Kopiera blocket nedan för varje ärende. Fyll i så mycket som ni kan. Ett kort
 
 ## Sammanfattning
 
-- Antal ärenden totalt:
-- Antal lösta:
-- Antal accepterade (kvar, med motivering):
+- Antal ärenden totalt: 4
+- Antal lösta: 4
+- Antal accepterade (kvar, med motivering): 0
 - Vad tog längst tid, och vad skulle ni göra annorlunda nästa gång:
