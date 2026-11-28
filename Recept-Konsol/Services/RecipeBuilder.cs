@@ -3,9 +3,9 @@
 namespace Recept.Services;
 
 // Builder (designmönster): bygger ett recept steg för steg.
-// Alla regler för ett recept och dess ingredienser kontrolleras här, på ett ställe.
-// Felaktiga värden ger ett ArgumentException med ett meddelande på svenska,
-// som menyn visar i stället för att programmet kraschar.
+// Ingredienser kontrolleras direkt när de läggs till, så attmenyn kan fråga om.
+// Resten kontrolleras på ett ställe i Build(). Felaktiga värden ger en ArgumentException
+// med ett meddelande på svenska, som menyn visar istället för att programmet kraschar.
 public class RecipeBuilder
 {
     // De enda tillåtna enheterna, så att inköpslistan kan summera rätt (beslut 10).
@@ -21,44 +21,24 @@ public class RecipeBuilder
 
     public RecipeBuilder WithName(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            throw new ArgumentException("Receptet måste ha ett namn.");
-        }
-
         _name = name.Trim();
         return this;
     }
 
     public RecipeBuilder WithServings(int servings)
-    {
-        if (servings < 1)
-        {
-            throw new ArgumentException("Antal portioner måste vara minst 1.");
-        }
-
+    { 
         _servings = servings;
         return this;
     }
 
     public RecipeBuilder InCategory(int categoryId)
     {
-        if (categoryId < 1)
-        {
-            throw new ArgumentException("Receptet måste ha en kategori.");
-        }
-
         _categoryId = categoryId;
         return this;
     }
 
     public RecipeBuilder ByChef(int chefId)
     {
-        if (chefId < 1)
-        {
-            throw new ArgumentException("Receptet måste ha en kock.");
-        }
-
         _chefId = chefId;
         return this;
     }
@@ -94,7 +74,7 @@ public class RecipeBuilder
     // Skapar receptet. Namn, portioner, kategori och kock måste vara ifyllda (beslut 4).
     public Recipe Build()
     {
-        if (_name.Length == 0)
+        if (string.IsNullOrWhiteSpace(_name))
         {
             throw new ArgumentException("Receptet måste ha ett namn.");
         }
@@ -109,7 +89,7 @@ public class RecipeBuilder
             throw new ArgumentException("Receptet måste ha en kategori.");
         }
 
-        if (_chefId is null)
+        if (_chefId is null or < 1)
         {
             throw new ArgumentException("Receptet måste ha en kock.");
         }
